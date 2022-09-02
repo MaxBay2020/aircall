@@ -1,24 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import {
+    BrowserRouter as Router,
+    Routes,
+    Route
+} from 'react-router-dom'
+import DetailPage from "./pages/detailpage/DetailPage";
+import AllCallsPage from "./pages/allCallsPage/AllCallsPage";
+import ArchivedPage from "./pages/archivedPage/ArchivedPage";
+import {createTheme} from "@mui/material";
+import {ThemeProvider} from "@emotion/react";
+
+const theme = createTheme({
+    palette: {
+        primary: {
+            main: '#f56646'
+        }
+    }
+})
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ThemeProvider theme={theme}>
+        <div className='container'>
+            <Router>
+                <Routes>
+                    <Route path='/' element={<AllCallsPage />} />
+                    <Route path='/archived' element={<ArchivedPage />}/>
+                    <Route path='/detail'>
+                        <Route path=':id' element={<DetailPage />} />
+                    </Route>
+                </Routes>
+            </Router>
+        </div>
+    </ThemeProvider>
   );
 }
 

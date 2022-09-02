@@ -1,0 +1,9 @@
+@import './src/css/variables';
+
+.content-container{
+  height: calc(100% - #{$header-height} - #{$footer-height});
+  width: 100%;
+  background-color: #f8f8f8!important;
+  padding: 10px 20px;
+  overflow-y: scroll;
+}
