@@ -1,50 +1,57 @@
 import Layout from "../../layout/Layout";
-import CallCard from "../../components/callCard/CallCard";
 import {useEffect, useState} from "react";
-import axios from 'axios'
 import Spinner from "../../components/spinner/Spinner";
+import {convertToMonthDateYear, organizeCallsByDate} from "../../utils/utils";
+import CallCardBlock from "../../components/callCardBlock/CallCardBlock";
+import {Box, createTheme, Divider, Typography} from "@mui/material";
+import {ThemeProvider} from "@emotion/react";
+import {useSelector} from "react-redux";
+
+const theme = createTheme({
+
+    typography: {
+        caption: {
+            fontSize: '12px',
+            color: 'rgba(92,92,92,0.65)'
+        }
+    }
+})
 
 const AllCallsPage = () => {
 
-    const [allCalls, setAllCalls] = useState(null)
-    const [isLoading, setIsLoading] = useState(true)
+    const [organizedAllCalls, setOrganizedAllCalls] = useState(null);
+
+    const allCallsSelector = useSelector(state => state.allCalls)
+    const { allCalls, isLoading } = allCallsSelector
+
 
     useEffect(() => {
-        getAllCalls('activities')
-    }, [])
+        setOrganizedAllCalls(organizeCallsByDate(allCalls))
+    }, [allCalls]);
 
-    const getAllCalls = async (url) => {
-       try {
-           const res = await axios.get(`${process.env.REACT_APP_BACK_END_BASE_URL}/${url}`)
-           res.status === 200 && setAllCalls(res.data)
-           setIsLoading(false)
-       }catch (e){
-           console.log(e.message)
-       }
-    }
 
-    console.log(allCalls)
+    useEffect(() => {
+        setOrganizedAllCalls(organizeCallsByDate(allCalls))
+    }, [allCalls]);
+
 
     return (
-        <Layout>
-            {
-                isLoading && <Spinner />
-            }
-            {
-                allCalls?.map(item =>  (
-                    <CallCard
-                        key={item.id}
-                        call_type={item.call_type}
-                        created_at={item.created_at}
-                        direction={item.direction}
-                        duration={item.duration}
-                        from={item.from}
-                        is_archived={item.is_archived}
-                        to={item.to}
-                        via={item.via}
-                    />
-                ))
-            }
+        <Layout page='commonPage'>
+            <ThemeProvider theme={theme}>
+                {
+                    isLoading && <Spinner />
+                }
+                {
+                    organizedAllCalls?.timeStampArr?.map(item =>  (
+                        <Box key={item}>
+                            <Divider sx={{marginBottom: '15px'}}><Typography variant='caption'>{convertToMonthDateYear(item)}</Typography></Divider>
+                            <CallCardBlock
+                                allCallsWithSameDay={ organizedAllCalls?.organizedTime[item]}
+                            />
+                        </Box>
+                    ))
+                }
+            </ThemeProvider>
 
         </Layout>
     )

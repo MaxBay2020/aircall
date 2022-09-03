@@ -1,11 +1,12 @@
-import {Box, Card, createTheme, Grid, IconButton, Typography} from "@mui/material";
+import {Box, createTheme, Grid, IconButton, Typography} from "@mui/material";
 import styled from "@emotion/styled";
 import PhoneMissedIcon from '@mui/icons-material/PhoneMissed';
 import PermPhoneMsgIcon from '@mui/icons-material/PermPhoneMsg';
 import VoicemailIcon from '@mui/icons-material/Voicemail';
 import {ThemeProvider} from "@emotion/react";
-import {useEffect, useState} from "react";
 import {getTime} from "../../utils/utils";
+import {Link} from "react-router-dom";
+import ArchiveButton from "../archiveButton/ArchiveButton";
 
 const MyCard = styled(Box)(({theme}) => ({
     backgroundColor: 'inherit',
@@ -13,9 +14,11 @@ const MyCard = styled(Box)(({theme}) => ({
     borderRadius: '10px',
     border: '1px solid rgba(100,100,100,0.4)',
     padding: '12px 0 12px 4px',
-    marginBottom: '30px',
+    marginBottom: '20px',
+    transition: 'all 0.2s ease-in-out',
     '&:hover' :{
-        cursor: 'pointer'
+        cursor: 'pointer',
+        boxShadow: '0 1px 8px rgba(100,100,100,0.4)'
     }
 }))
 
@@ -29,7 +32,8 @@ const Dot = styled(Box)(({theme}) => ({
 const theme = createTheme({
     palette: {
         primary: {
-            main: '#f56646'
+            main: '#f56646',
+            dark: '#f56646',
         },
         secondary: {
             main: '#2da32f'
@@ -78,8 +82,15 @@ const theme = createTheme({
     }
 })
 
-const CallCard = (props) => {
+const CardContainer = styled(Box)(({theme}) => ({
+    position: 'relative',
+}))
+
+
+
+const CallCard = ({details}) => {
     const {
+        id,
         call_type,
         created_at,
         direction,
@@ -87,14 +98,15 @@ const CallCard = (props) => {
         from,
         is_archived,
         to,
-        via
-    } = props
+        via,
+    } = details
 
     const {
-        formattedDate,
-        formattedTime,
-        formattedAMOrPM
+        date,
+        time,
+        aMOrPM,
     } = getTime(created_at)
+
 
     const renderIcon = () => {
         switch (call_type){
@@ -111,49 +123,57 @@ const CallCard = (props) => {
 
 
 
-    const count = 8
+
 
 
     return (
         <ThemeProvider theme={theme}>
-            <MyCard>
-                <span>{formattedDate}</span>
-                <Grid container alignItems='center'>
-                    {/*icon*/}
-                    <Grid item xs={2}>
-                        <IconButton>{renderIcon()}</IconButton>
-                    </Grid>
+            <CardContainer>
+                <Link to={`/detail/${id}`}>
+                    <MyCard>
+                        <Grid container alignItems='center'>
+                            {/*icon*/}
+                            <Grid item xs={2}>
+                                <IconButton>{renderIcon()}</IconButton>
+                            </Grid>
 
-                    {/*details*/}
-                    <Grid item xs={7}>
-                        <Grid container direction='column'>
-                            <Grid item>
-                                <Grid container alignItems='center'>
-                                    <Grid item><Typography variant='h5' noWrap>{from}</Typography></Grid>
-                                    <Grid item><Typography variant='h6'>{count}</Typography></Grid>
+                            {/*details*/}
+                            <Grid item xs={7}>
+                                <Grid container direction='column'>
+                                    <Grid item>
+                                        <Grid container alignItems='center'>
+                                            <Grid item><Typography variant='h5' noWrap>{from}</Typography></Grid>
+                                            {/*<Grid item><Typography variant='h6'>{count}</Typography></Grid>*/}
+                                        </Grid>
+                                    </Grid>
+
+                                    <Grid item><Typography variant='body1' noWrap>tried to call on {to}</Typography></Grid>
                                 </Grid>
                             </Grid>
 
-                            <Grid item><Typography variant='body1' noWrap>tried to call on {to}</Typography></Grid>
-                        </Grid>
-                    </Grid>
-
-                    {/*time*/}
-                    <Grid item xs={3}>
-                        <Grid container alignItems='center' justifyContent='space-between'>
-                            <Grid item>
-                                <Grid container direction='column' gap='3px'>
-                                    <Grid item><Dot /></Grid>
-                                    <Grid item><Dot /></Grid>
-                                    <Grid item><Dot /></Grid>
+                            {/*time*/}
+                            <Grid item xs={3}>
+                                <Grid container alignItems='center' justifyContent='space-between'>
+                                    <Grid item>
+                                        <Grid container direction='column' gap='3px'>
+                                            <Grid item><Dot /></Grid>
+                                            <Grid item><Dot /></Grid>
+                                            <Grid item><Dot /></Grid>
+                                        </Grid>
+                                    </Grid>
+                                    <Grid item><Typography variant='timeFont'>{time}</Typography></Grid>
+                                    <Grid item><Typography variant='timeSlotFont'>{aMOrPM}</Typography></Grid>
                                 </Grid>
                             </Grid>
-                            <Grid item><Typography variant='timeFont'>{formattedTime}</Typography></Grid>
-                            <Grid item><Typography variant='timeSlotFont'>{formattedAMOrPM}</Typography></Grid>
                         </Grid>
-                    </Grid>
-                </Grid>
-            </MyCard>
+                    </MyCard>
+                </Link>
+
+                <ArchiveButton details={details} />
+
+
+            </CardContainer>
+
         </ThemeProvider>
     )
 }
